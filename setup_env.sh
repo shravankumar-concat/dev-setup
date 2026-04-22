@@ -25,34 +25,41 @@ if [ ! -f "$HOME/.local/bin/zoxide" ]; then
 fi
 
 # -----------------------
-# Ensure PATH everywhere (CRITICAL: must be first in bashrc)
+# 🔥 CRITICAL FIX: Insert PATH at TOP of .bashrc
 # -----------------------
-for file in ~/.bashrc ~/.profile; do
-  if ! grep -q 'DEV_SETUP_PATH_FIX' "$file" 2>/dev/null; then
+if ! grep -q 'DEV_SETUP_PATH_TOP' ~/.bashrc; then
+  sed -i '1i\
+# DEV_SETUP_PATH_TOP\
+export PATH="$HOME/.local/bin:$PATH"\
+' ~/.bashrc
+fi
+
+# -----------------------
+# Backup PATH in profile (fallback safety)
+# -----------------------
+for file in ~/.profile ~/.bash_profile; do
+  if ! grep -q 'DEV_SETUP_PATH_BACKUP' "$file" 2>/dev/null; then
     cat << 'EOF' >> "$file"
 
-# DEV_SETUP_PATH_FIX (do not remove)
+# DEV_SETUP_PATH_BACKUP
 export PATH="$HOME/.local/bin:$PATH"
 EOF
   fi
 done
 
 # -----------------------
-# Clean previous DEV SETUP block (avoid duplicates)
+# Clean previous DEV SETUP block
 # -----------------------
 sed -i '/# DEV_SETUP_START/,/# DEV_SETUP_END/d' ~/.bashrc || true
 
 # -----------------------
-# Add clean DEV SETUP block (ORDER MATTERS)
+# Add clean DEV SETUP block
 # -----------------------
 cat << 'EOF' >> ~/.bashrc
 
 # DEV_SETUP_START
 
-# PATH (must be before tool init)
-export PATH="$HOME/.local/bin:$PATH"
-
-# Init tools
+# Init tools (PATH already fixed at top)
 eval "$(starship init bash)"
 eval "$(zoxide init bash)"
 
@@ -97,4 +104,4 @@ symbol = "🐍 "
 EOF
 
 echo "✅ Environment ready"
-echo "👉 Open a new terminal OR run: source ~/.bashrc"
+echo "👉 Restart terminal OR run: source ~/.bashrc"
