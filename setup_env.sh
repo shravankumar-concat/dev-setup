@@ -4,10 +4,19 @@ set -e
 echo "🚀 Bootstrapping dev environment..."
 
 # -----------------------
-# Install base tools (only if missing)
+# Install base tools
 # -----------------------
 if ! command -v eza &> /dev/null; then
   apt update && apt install -y eza curl git
+fi
+
+# -----------------------
+# Ensure PATH
+# -----------------------
+export PATH="$HOME/.local/bin:$PATH"
+
+if ! grep -q '.local/bin' ~/.bashrc; then
+  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 fi
 
 # -----------------------
@@ -25,7 +34,7 @@ if ! command -v zoxide &> /dev/null; then
 fi
 
 # -----------------------
-# Configure bash (idempotent)
+# Configure bash
 # -----------------------
 if ! grep -q "starship init bash" ~/.bashrc; then
 cat << 'EOF' >> ~/.bashrc
@@ -69,4 +78,4 @@ symbol = " "
 symbol = "🐍 "
 EOF
 
-echo "✅ Environment ready"
+echo "✅ Environment ready (open new terminal or run: source ~/.bashrc)"
